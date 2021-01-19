@@ -4,7 +4,10 @@ from django.http import HttpResponse, QueryDict
 from django.core.serializers.json import DjangoJSONEncoder
 import json
 import ast
+import os
 from backpoke.models import *
+from dotenv import load_dotenv
+load_dotenv()
 
 
 class BackpokeConfig(AppConfig):
@@ -20,10 +23,9 @@ class BackEvolution():
     def get_evolution(self):
         try:
             if self._request.get('id'):
-                url = "https://pokeapi.co/api/v2/evolution-chain/{}/".format(self._request.get('id'))
-                url_stats = "https://pokeapi.co/api/v2/pokemon/{}/".format(self._request.get('id'))
-                url_evolutions = "https://pokeapi.co/api/v2/evolution-trigger/{}/".format(self._request.get('id'))
-
+                url = os.getenv('EVOLUTIONCHAIN').format(self._request.get('id'))
+                url_stats = os.getenv('POKEMON').format(self._request.get('id'))
+                url_evolutions = os.getenv('EVOLUTIONTRIGGER').format(self._request.get('id'))
                 response = requests.get(url)
                 if response.status_code != 200:
                      self.respose = {'code':500,'data':'Ingrese otro id'}
