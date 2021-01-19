@@ -22,10 +22,10 @@ class BackEvolution():
 
     def get_evolution(self):
         try:
+
             if self._request.get('id'):
                 url = os.getenv('EVOLUTIONCHAIN').format(self._request.get('id'))
                 url_stats = os.getenv('POKEMON').format(self._request.get('id'))
-                url_evolutions = os.getenv('EVOLUTIONTRIGGER').format(self._request.get('id'))
                 response = requests.get(url)
                 if response.status_code != 200:
                      self.respose = {'code':500,'data':'Ingrese otro id'}
@@ -40,15 +40,17 @@ class BackEvolution():
                 #base_stats
                 response_stats = requests.get(url_stats)
                 data_stats = json.loads(response_stats.text)
-
                 self.save['base_stats'] = data_stats.get('stats')
                 self.save['weight'] = data_stats.get('weight')
                 self.save['height'] = data_stats.get('height')
                 self.save['id_pokemon'] = self._request.get('id')
 
                 #evolutions
-                response_evolutions = requests.get(url_evolutions)
-                data_evolutions = json.loads(response_evolutions.text)
+                data_evolutions = []
+                if data.get('chain').get('evolves_to') and data.get('chain').get('evolves_to')[0].get('evolves_to'):
+                    trigger = data.get('chain').get('evolves_to').get('evolves_to').get('trigger').get('url')
+                    response_evolutions = requests.get(trigger)
+                    data_evolutions = json.loads(response_evolutions.text)
                 self.save['evolutions'] = data_evolutions
 
                 evoluion_save = EvolutionChains.objects.update_or_create(**self.save)
